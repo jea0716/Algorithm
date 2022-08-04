@@ -3,7 +3,7 @@
 using namespace std;
 
 //1->b , 2->ba 3->bab, 4->babba 5->babbabab
-//01, 11, 12, 23, 35
+//01, 11, 12, 23, 35, 58
 
 int main(){
     int n; cin >> n;
