@@ -15,9 +15,9 @@ int main(){
     }
     string line; cin >> line;
     
-    for(int i=0; i<line.length()-((2*n)+1); i++){
+    for(int i=0; i<=line.length()-((2*n)+1); i++){
         if(s == line.substr(i,2*n+1)) answer++;
     }
 
-    cout << answer << endl;
+    cout << answer << '\n';
 }
