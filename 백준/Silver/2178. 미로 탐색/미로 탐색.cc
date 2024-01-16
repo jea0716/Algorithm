@@ -1,69 +1,66 @@
 #include <iostream>
-#include <vector>
-#include <string>
 #include <queue>
+#include <string>
 
 using namespace std;
 
-int arr[102][102], check[102][102], path[102][102];
-int n, m, answer;
+struct coordinate {
+    int X, Y, Count;
+};
 
-void bfs(int a, int b)
-{
-    queue <int> q[2];
-    q[0].push(a);
-    q[1].push(b);
-    check[a][b] = 1;
-    while(!q[0].empty())
-    {
-        int x = q[0].front(), y = q[1].front();
-        if(n == x && m == y) break;
-        q[0].pop(); q[1].pop();
+int N, M;
+char map[101][101];
+int visited[101][101];
+int answer = 9999999;
 
-        if(arr[x-1][y] == 1 && check[x-1][y] == 0)
-        {
-            q[0].push(x-1); q[1].push(y);
-            check[x-1][y] = 1;
-            path[x-1][y] = path[x][y] + 1;
+int dx[] = {1, -1, 0, 0};
+int dy[] = {0, 0, 1, -1};
+
+void BFS() {
+    queue <coordinate> q;
+    visited[0][0] = 1;
+    q.push({0, 0, 1});
+
+    while(!q.empty()) {
+        int x = q.front().X;
+        int y = q.front().Y;
+        int count = q.front().Count;
+        q.pop();
+
+        if(x == N-1 && y == M-1 && answer > count) {
+            answer = count;
         }
-        if(arr[x+1][y] == 1 && check[x+1][y] == 0)
-        {
-            q[0].push(x+1); q[1].push(y);
-            check[x+1][y] = 1;
-            path[x+1][y] = path[x][y] + 1;
-        }
-        if(arr[x][y-1] == 1 && check[x][y-1] == 0)
-        {
-            q[0].push(x); q[1].push(y-1);
-            check[x][y-1] = 1;
-            path[x][y-1] = path[x][y] + 1;
-        }
-        if(arr[x][y+1] == 1 && check[x][y+1] == 0)
-        {
-            q[0].push(x); q[1].push(y+1);
-            check[x][y+1] = 1;
-            path[x][y+1] = path[x][y] + 1;
+
+        for(int i=0; i<4; i++) {
+            if(
+                x + dx[i] >= 0 && 
+                y + dy[i] >= 0 && 
+                x + dx[i] < N &&
+                y + dy[i] < M &&
+                map[x + dx[i]][y + dy[i]] == '1' &&
+                visited[x + dx[i]][y + dy[i]] == 0
+                ) {
+                    visited[x + dx[i]][y + dy[i]] = 1;
+                    q.push({x + dx[i], y + dy[i], count + 1});
+            }
         }
     }
 }
 
-int main()
-{
-    int n, m; cin >> n >> m;
-    char width[m+1];
-    for(int i=1; i<=n; i++)
-    {
-        cin >> width;
-        for(int j=0; j<m; j++)
-        {
-            if(width[j] == '0') arr[i][j+1] = 0;
-            else arr[i][j+1] = 1;
+int main() {
+    cin >> N >> M;
+    string s;
+
+    for(int i=0; i<N; i++) {
+        cin >> s;
+        for(int j=0; j<s.length(); j++) {
+            map[i][j] = s[j];
         }
     }
 
-    bfs(1, 1);
+    BFS();
 
-    cout << path[n][m] + 1 << endl;
+    cout << answer << "\n";
 
     return 0;
 }
