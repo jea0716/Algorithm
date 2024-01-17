@@ -1,114 +1,77 @@
 #include <iostream>
 #include <queue>
+#include <vector>
 
 using namespace std;
 
-int n, m, h;
-int arr[105][105][105], check[105][105][105], path[105][105][105];
+struct coordinate {
+    int X, Y, Z, Count;
+};
 
-queue<int> q[3];
+int M, N, H;
+int map[101][101][101];
+int visited[101][101][101];
+int dz[] = {1, -1, 0, 0, 0, 0};
+int dx[] = {0, 0, 1, -1, 0, 0};
+int dy[] = {0, 0, 0, 0, 1, -1};
+int answer;
 
-void bfs()
-{
-    while(!q[0].empty())
-    {
-        int a = q[0].front(), b = q[1].front(), c = q[2].front();
-        q[0].pop(); q[1].pop(); q[2].pop();
+void BFS(queue <coordinate> q) {
+    int tmp;
+    while(!q.empty()) {
+        int x = q.front().X;
+        int y = q.front().Y;
+        int z = q.front().Z;
+        int count = q.front().Count;
+        q.pop();
 
-        if(arr[a-1][b][c] == 0 && check[a-1][b][c] == 0 && a > 0 && b > 0 && c > 0 && a <= m && b <= n && c <= h)
-        {
-            path[a-1][b][c] = path[a][b][c] + 1;
-            check[a-1][b][c] = 1;
-            arr[a-1][b][c] = 1;
-            q[0].push(a-1); q[1].push(b); q[2].push(c);
-        }
-        if(arr[a+1][b][c] == 0 && check[a+1][b][c] == 0 && a > 0 && b > 0 && c > 0 && a <= m && b <= n && c <= h)
-        {
-            path[a+1][b][c] = path[a][b][c] + 1;
-            check[a+1][b][c] = 1;
-            arr[a+1][b][c] = 1;
-            q[0].push(a+1); q[1].push(b); q[2].push(c);
-        }
-        if(arr[a][b-1][c] == 0 && check[a][b-1][c] == 0 && a > 0 && b > 0 && c > 0 && a <= m && b <= n && c <= h)
-        {
-            path[a][b-1][c] = path[a][b][c] + 1;
-            check[a][b-1][c] = 1;
-            arr[a][b-1][c] = 1;
-            q[0].push(a); q[1].push(b-1); q[2].push(c);
-        }
-        if(arr[a][b+1][c] == 0 && check[a][b+1][c] == 0 && a > 0 && b > 0 && c > 0 && a <= m && b <= n && c <= h)
-        {
-            path[a][b+1][c] = path[a][b][c] + 1;
-            check[a][b+1][c] = 1;
-            arr[a][b+1][c] = 1;
-            q[0].push(a); q[1].push(b+1); q[2].push(c);
-        }
-        if(arr[a][b][c-1] == 0 && check[a][b][c-1] == 0 && a > 0 && b > 0 && c > 0 && a <= m && b <= n && c <= h)
-        {
-            path[a][b][c-1] = path[a][b][c] + 1;
-            check[a][b][c-1] = 1;
-            arr[a][b][c-1] = 1;
-            q[0].push(a); q[1].push(b); q[2].push(c-1);
-        }
-        if(arr[a][b][c+1] == 0 && check[a][b][c+1] == 0 && a > 0 && b > 0 && c > 0 && a <= m && b <= n && c <= h)
-        {
-            path[a][b][c+1] = path[a][b][c] + 1;
-            check[a][b][c+1] = 1;
-            arr[a][b][c+1] = 1;
-            q[0].push(a); q[1].push(b); q[2].push(c+1);
+        if(answer < count) answer = count;
+
+        for(int i=0; i<6; i++) {
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+            int nz = z + dz[i];
+            int ncount = count + 1;
+
+            if(nx < 0 || ny < 0 || nz < 0) continue;
+            if(nx >= N || ny >= M || nz >= H) continue;
+            if(visited[nx][ny][nz] != 0) continue;
+            visited[nx][ny][nz] = 1;
+            q.push({ nx, ny, nz, ncount });
         }
     }
 }
 
-int main()
-{
-    ios::sync_with_stdio(false);
-    cin.tie(NULL);
-    cin >> n >> m >> h;
-    int tmp;
+int main() {
+    cin >> M >> N >> H;
+    queue <coordinate> q;
 
-    for(int k=1; k<=h; k++)
-    {
-        for(int i=1; i<=m; i++)
-        {
-            for(int j=1; j<=n; j++)
-            {
-                cin >> tmp;
-                arr[i][j][k] = check[i][j][k] = tmp;
-                if(tmp == 1)
-                {
-                    q[0].push(i); q[1].push(j); q[2].push(k);
+    for(int k=0; k<H; k++) {
+        for(int i=0; i<N; i++) {
+            for(int j=0; j<M; j++) {
+                cin >> map[i][j][k];
+                if(map[i][j][k] == 1) {
+                    visited[i][j][k] = 1;
+                    q.push({ i, j, k, 0 });
                 }
-                if(tmp == -1)
-                {
-                    path[i][j][k] = -1;
+                else if(map[i][j][k] == -1) {
+                    visited[i][j][k] = 1;
                 }
             }
         }
     }
 
-    bfs();
+    BFS(q);
 
-    bool abled = true;
-    int answer = -1;
-
-    for(int k=1; k<=h; k++)
-    {
-        for(int i=1; i<=m; i++)
-        {
-            for(int j=1; j<=n; j++)
-            {
-                if(arr[i][j][k] == 0 && check[i][j][k] == 0)
-                {
-                    abled = false;
-                }
-                if(answer < path[i][j][k]) answer = path[i][j][k];
+    for(int k=0; k<H; k++) {
+        for(int i=0; i<N; i++) {
+            for(int j=0; j<M; j++) {
+                if(visited[i][j][k] == 0) answer = -1;
             }
         }
     }
 
-    if(abled == true) cout << answer << '\n';
-    else cout << -1 << '\n';
+    cout << answer << "\n";
 
     return 0;
 }
