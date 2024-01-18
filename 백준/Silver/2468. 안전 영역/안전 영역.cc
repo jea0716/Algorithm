@@ -1,63 +1,70 @@
 #include <iostream>
+#include <queue>
+#include <vector>
 
 using namespace std;
 
-int map[102][102];
-int visited[102][102];
-int N, M;
+struct node {
+    int X, Y;
+};
 
-int col[4] = {-1, 0, 1, 0};
-int row[4] = {0, -1, 0, 1};
+int N, MAX_HEIGHT;
+int map[101][101];
+int visited[101][101];
+int dx[] = {1, -1, 0, 0};
+int dy[] = {0, 0, 1, -1};
 
-void bfs(int n, int m, int k) {
-    visited[n][m] = 1;
-    
-    for(int i=0; i<4; i++) {
-        if(map[n+col[i]][m+row[i]] > k && visited[n+col[i]][m+row[i]] == 0) {
-            bfs(n+col[i], m+row[i], k);
-        } 
+void BFS(int x, int y) {
+    queue <node> q;
+    q.push({ x, y });
+    visited[x][y] = 1;
+
+    while(!q.empty()) {
+        int x = q.front().X;
+        int y = q.front().Y;
+        q.pop();
+
+        for(int i=0; i<4; i++) {
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+
+            if(nx < 0 || ny < 0 || nx >= N || ny >= N) continue;
+            if(visited[nx][ny] == 1) continue;
+            visited[nx][ny] = 1;
+            q.push({ nx, ny });
+        }
     }
-
-    return;
-}
-
-void reset(int n, int m) {
-    for(int i=1; i<=m; i++) {
-        for(int j=1; j<=n; j++) visited[i][j] = 0;
-    }
-
-    return;
 }
 
 int main() {
-    cin.tie(NULL);
-    ios::sync_with_stdio(false);
-
+    int answer = 0;
     cin >> N;
-
-    int high = 0, tmp;
-    int answer = 0, cnt;
-
-    for(int i=1; i<=N; i++) {
-        for(int j=1; j<=N; j++) {
-            cin >> tmp;
-            map[i][j] = tmp;
-            if(tmp > high) high = tmp;
+    for(int i=0; i<N; i++) {
+        for(int j=0; j<N; j++) {
+            cin >> map[i][j];
+            MAX_HEIGHT = MAX_HEIGHT > map[i][j] ? MAX_HEIGHT : map[i][j];
         }
     }
 
-    for(int k=0; k<high; k++) {
-        reset(N, N);
-        cnt = 0;
-        for(int i=1; i<=N; i++) {
-            for(int j=1; j<=N; j++) {
-                if(map[i][j] > k && visited[i][j] == 0) {
-                    cnt++;
-                    bfs(i, j, k);
+    for(int k=0; k<=MAX_HEIGHT; k++) {
+        int count = 0;
+        for(int i=0; i<N; i++) {
+            for(int j=0; j<N; j++) {
+                if(map[i][j] <= k) visited[i][j] = 1;
+                else visited[i][j] = 0;
+            }
+        }
+
+        for(int i=0; i<N; i++) {
+            for(int j=0; j<N; j++) {
+                if(visited[i][j] == 0) {
+                    BFS(i, j);
+                    count++;
                 }
             }
         }
-        if(answer < cnt) answer = cnt;
+        
+        answer = answer > count ? answer : count;
     }
 
     cout << answer << "\n";
