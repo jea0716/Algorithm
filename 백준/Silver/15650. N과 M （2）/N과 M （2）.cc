@@ -1,61 +1,30 @@
 #include <iostream>
-#include <vector>
 
 using namespace std;
 
-int arr[8];
-bool visited[8];
-int n, m, cnt;
-vector <int> v;
+int N, M;
+int arr[10];
+bool visited[10];
 
-
-void print()
-{
-    bool check = true;
-    for(int i=0; i<v.size()-1; i++)
-    {
-        if(v[i] > v[i+1]) check = false;
+void DFS(int n, int count) {
+    if(count == M) {
+        for(int i=0; i<M; i++) cout << arr[i] << " ";
+        cout << "\n";
+        return;
     }
-    if(check == true)
-    {
-        for(int i=0; i<v.size(); i++)
-        {
-            cout << v[i] << " ";
+
+    for(int i=1; i<=N; i++) {
+        if(!visited[i] && i >= n) {
+            visited[i] = true;
+            arr[count] = i;
+            DFS(i, count + 1);
+            visited[i] = false;
         }
-        cout << endl;
-    }
-    return ;
-}
-
-void dfs(int cnt)
-{
-    if(cnt == m)
-    {
-        print();
-        return ;
-    }
-
-    for(int i=0; i<n; i++)
-    {
-        if(visited[i]) continue;
-        visited[i] = true;
-        v.push_back(arr[i]);
-        dfs(cnt + 1);
-        v.pop_back();
-        visited[i] = false; 
     }
 }
 
-int main()
-{   
-    cin >> n >> m;
-    for(int i=0; i<n; i++)
-    {
-        arr[i] = i + 1;
-        visited[i] = false;
-    }
-
-    dfs(0);
-
-    return 0;
+int main() {
+    ios::sync_with_stdio(false); cin.tie(NULL);
+    cin >> N >> M;
+    DFS(1, 0);
 }
