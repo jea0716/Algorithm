@@ -1,58 +1,34 @@
 #include <iostream>
-#include <vector>
 #include <algorithm>
 
 using namespace std;
 
-int arr[8];
-bool visited[8];
-int n, m, cnt;
-vector <int> v;
+int N, M;
+int arr[10];
+int N_arr[10];
+int visited[10];
 
-
-void print()
-{
-    for(int i=0; i<v.size(); i++)
-    {
-        cout << v[i] << " ";
-    }
-    cout << "\n";
-    return ;
-}
-
-void dfs(int cnt)
-{
-    if(cnt == m)
-    {
-        print();
-        return ;
+void DFS(int count) {
+    if(count == M) {
+        for(int i=0; i<M; i++) cout << arr[i] << " ";
+        cout << "\n";
+        return;
     }
 
-    for(int i=0; i<n; i++)
-    {
-        if(visited[i]) continue;
-        visited[i] = true;
-        v.push_back(arr[i]);
-        dfs(cnt + 1);
-        v.pop_back();
-        visited[i] = false; 
+    for(int i=0; i<N; i++) {
+        if(visited[i] == 0) {
+            visited[i] = 1;
+            arr[count] = N_arr[i];
+            DFS(count + 1);
+            visited[i] = 0;
+        }
     }
 }
 
-int main()
-{   
-    ios::sync_with_stdio(false);
-    cin.tie(NULL);
-    cin >> n >> m;
-    for(int i=0; i<n; i++)
-    {
-        cin >> arr[i];
-        visited[i] = false;
-    }
-
-    sort(arr, arr + n);
-
-    dfs(0);
-
-    return 0;
+int main() {
+    ios::sync_with_stdio(false); cin.tie(NULL);
+    cin >> N >> M;
+    for(int i=0; i<N; i++) cin >> N_arr[i];
+    sort(N_arr, N_arr + N);
+    DFS(0);
 }
