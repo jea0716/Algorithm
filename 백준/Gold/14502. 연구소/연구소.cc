@@ -1,89 +1,102 @@
 #include <iostream>
-#include <algorithm>
+#include <vector>
 #include <queue>
 
 using namespace std;
 
+struct node {
+    int X, Y;
+};
+
 int N, M;
-int map[8][8];
-int wall_map[8][8];
-int copy_map[8][8];
-int col[4] = {-1, 0, 1, 0};
-int row[4] = {0, -1, 0, 1};
+int map[10][10];
+int tmp_map[10][10];
+int visited[10][10];
+int virus_visited[10][10];
 int answer;
 
-void copyMap(int (*map_a)[8], int (*map_b)[8]) {
+node THREE_WALL[3];
+vector <node> virus;
+
+int dx[] = {1, -1, 0, 0};
+int dy[] = {0, 0, 1, -1};
+
+void check() {
+    int tmp = 0;
     for(int i=0; i<N; i++) {
-        for(int j=0; j<M; j++) map_a[i][j] = map_b[i][j];
+        for(int j=0; j<M; j++) if(tmp_map[i][j] == 0) tmp++;
+    }
+    
+    if(answer < tmp) answer = tmp;
+}
+
+void clear_virus_visited() {
+    for(int i=0; i<N; i++) {
+        for(int j=0; j<M; j++) virus_visited[i][j] = 0;
     }
 }
 
-void bfs() {
-    copyMap(copy_map, wall_map);
-    queue <pair<int, int> > q;
+void BFS() {
+    queue <node> q;
+    clear_virus_visited();
     for(int i=0; i<N; i++) {
-        for(int j=0; j<M; j++) {
-            if(copy_map[i][j] == 2) q.push(make_pair(i, j));
-        }
+        for(int j=0; j<M; j++) tmp_map[i][j] = map[i][j];
     }
+    for(int i=0; i<3; i++) tmp_map[THREE_WALL[i].X][THREE_WALL[i].Y] = 1;
+    for(int i=0; i<3; i++) virus_visited[THREE_WALL[i].X][THREE_WALL[i].Y] = 1;
+    for(int i=0; i<virus.size(); i++) q.push(virus[i]);
+    for(int i=0; i<virus.size(); i++) virus_visited[virus[i].X][virus[i].Y] = 1;
 
     while(!q.empty()) {
-        int x = q.front().first;
-        int y = q.front().second;
+        node n = q.front();
         q.pop();
 
         for(int i=0; i<4; i++) {
-            if(x+col[i] >= 0 && x+col[i] < N && y+row[i] >= 0 && y+row[i] < M) {
-                if(copy_map[x+col[i]][y+row[i]] == 0) {
-                    copy_map[x+col[i]][y+row[i]] = 2;
-                    q.push(make_pair(x+col[i], y+row[i]));
-                }
-            }
+            int nx = n.X + dx[i];
+            int ny = n.Y + dy[i];
+            if(nx < 0 || ny < 0 || nx >= N || ny >= M) continue;
+            if(tmp_map[nx][ny] != 0 || virus_visited[nx][ny]) continue;
+            virus_visited[nx][ny] = 1;
+            tmp_map[nx][ny] = 2;
+            q.push(node({ nx, ny }));
         }
     }
 
-    int cnt = 0;
-    for(int i=0; i<N; i++) {
-        for(int j=0; j<M; j++) {
-            if(copy_map[i][j] == 0) cnt++;
-        }
-    }
-    if(answer < cnt) answer = cnt;
+    check();
 }
 
-void make_wall(int cnt) {
-    if(cnt == 3) bfs();
-    else {
-        for(int i=0; i<N; i++) {
-            for(int j=0; j<M; j++) {
-                if(wall_map[i][j] == 0) {
-                    wall_map[i][j] = 1;
-                    make_wall(cnt+1);
-                    wall_map[i][j] = 0;
-                }
-            }
+void DFS(node prev, int count) {
+    if(count == 3) {
+        BFS();
+        return;
+    }
+
+    for(int i=0; i<N; i++) {
+        for(int j=0; j<M; j++) {
+            if(prev.X > i && prev.Y > j) continue;
+            if(map[i][j] != 0 || visited[i][j]) continue;
+            visited[i][j] = 1;
+            THREE_WALL[count] = node({ i, j });
+            DFS(node({ i, j }), count + 1);
+            visited[i][j] = 0;
         }
     }
 }
 
 int main() {
-    ios_base::sync_with_stdio(false);
-	cin.tie(0);
+    ios::sync_with_stdio(false); cin.tie(NULL);
 
     cin >> N >> M;
     for(int i=0; i<N; i++) {
-        for(int j=0; j<M; j++) cin >> map[i][j];
-    }
-
-    for(int i=0; i<N; i++) {
         for(int j=0; j<M; j++) {
-            if(map[i][j] == 0) {
-                copyMap(wall_map, map);
-                wall_map[i][j] = 1;
-                make_wall(1);
-            }
+            cin >> map[i][j];
+            if(map[i][j] == 2) virus.push_back(node({ i, j }));
         }
     }
 
+    DFS(node({ -1, -1 }), 0);
+
     cout << answer << "\n";
+
+    return 0;
 }
