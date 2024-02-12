@@ -1,29 +1,28 @@
 #include <iostream>
-#include <vector>
-#include <string>
-#include <queue>
+#include <algorithm>
 
 using namespace std;
 
-int dp[16];
-int T[16];
-int P[16];
+struct node {
+    int day, value;
+};
 
-int main()
-{
-    int n; cin >> n;
-    for(int i=0; i<n; i++)
-    {
-        cin >> T[i] >> P[i];
-    }
-    for(int i=n-1; i>=0; i--)
-    {
-        if(i + T[i] <= n)
-        {
-            dp[i] = max(dp[i], dp[i+T[i]] + P[i]);
+int N;
+node arr[16];
+int answer[16];
+
+int main() {
+    cin >> N;
+    for(int i=1; i<=N; i++) cin >> arr[i].day >> arr[i].value;
+
+    for(int i=N; i > 0; i--) {
+        if(arr[i].day + i - 1 > N) answer[i] = answer[i+1];
+        else {
+            answer[i] = max(answer[i+1], answer[arr[i].day + i] + arr[i].value);
         }
-        dp[i] = max(dp[i], dp[i+1]);
     }
-    cout << dp[0] << "\n";
+
+    cout << answer[1] << endl;
+
     return 0;
 }
