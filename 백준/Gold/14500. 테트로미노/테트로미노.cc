@@ -1,73 +1,98 @@
 #include <iostream>
-#include <queue>
-#include <vector>
 
 using namespace std;
+
+struct node {
+    int x, y;
+};
 
 int N, M;
 int map[501][501];
 int visited[501][501];
-int ans;
+int answer;
+int dx[] = {1, -1, 0, 0};
+int dy[] = {0, 0, 1, -1};
 
-void solve(int x, int y, int cnt, int sum)
-{
-    visited[x][y] = 1;
+node shape1[] = {{0, 0}, {0, 1}, {0, 2}, {1, 1}};
+node shape2[] = {{0, 0}, {0, 1}, {0, 2}, {-1, 1}};
+node shape3[] = {{0, 0}, {1, 0}, {2, 0}, {1, 1}};
+node shape4[] = {{0, 0}, {1, 0}, {2, 0}, {1, -1}};
 
-    if(cnt == 4 && ans < sum) ans = sum;
-
-    if(x - 1 >= 0 && visited[x-1][y] == 0 && cnt < 4)
-    {
-        visited[x-1][y] = 1;
-        solve(x-1, y, cnt+1, sum+map[x-1][y]);
-        visited[x-1][y] = 0;
+void speacial1(int x, int y){
+    int tmp = 0;
+    for(int i=0; i<4; i++) {
+        int nx = x + shape1[i].x, ny = y + shape1[i].y;
+        if(nx < 0 || ny < 0 || nx >= N || ny >= M) return;
+        tmp += map[nx][ny];
     }
-    if(x + 1 < N && visited[x+1][y] == 0 && cnt < 4) 
-    {
-        visited[x+1][y] = 1;
-        solve(x+1, y, cnt+1, sum+map[x+1][y]);
-        visited[x+1][y] = 0;
-    }
-    if(y - 1 >= 0 && visited[x][y-1] == 0 && cnt < 4)
-    {
-        visited[x][y-1] = 1;
-        solve(x, y-1, cnt+1, sum+map[x][y-1]);
-        visited[x][y-1] = 0;
-    }
-    if(y + 1 < M && visited[x][y+1] == 0 && cnt < 4) 
-    {
-        visited[x][y+1] = 1;
-        solve(x, y+1, cnt+1, sum+map[x][y+1]);
-        visited[x][y+1] = 0;
-    }
-    if(cnt==1 && x-1>=0 && x+1<N && y-1>=0) ans = max(ans, map[x][y]+map[x-1][y]+map[x+1][y]+map[x][y-1]);
-    if(cnt==1 && x-1>=0 && x+1<N && y+1<M) ans = max(ans, map[x][y]+map[x-1][y]+map[x+1][y]+map[x][y+1]);
-    if(cnt==1 && x-1>=0 && y-1>=0 && y+1<M) ans = max(ans, map[x][y]+map[x-1][y]+map[x][y-1]+map[x][y+1]);
-    if(cnt==1 && x+1<N && y-1>=0 && y+1<M) ans = max(ans, map[x][y]+map[x+1][y]+map[x][y-1]+map[x][y+1]);
+    answer = answer > tmp ? answer :tmp;
 }
 
-int main()
-{
-    ios::sync_with_stdio(false);
-    cin.tie(0);
+void speacial2(int x, int y){
+    int tmp = 0;
+    for(int i=0; i<4; i++) {
+        int nx = x + shape2[i].x, ny = y + shape2[i].y;
+        if(nx < 0 || ny < 0 || nx >= N || ny >= M) return;
+        tmp += map[nx][ny];
+    }
+    answer = answer > tmp ? answer :tmp;
+}
 
+void speacial3(int x, int y){
+    int tmp = 0;
+    for(int i=0; i<4; i++) {
+        int nx = x + shape3[i].x, ny = y + shape3[i].y;
+        if(nx < 0 || ny < 0 || nx >= N || ny >= M) return;
+        tmp += map[nx][ny];
+    }
+    answer = answer > tmp ? answer :tmp;
+}
+
+void speacial4(int x, int y){
+    int tmp = 0;
+    for(int i=0; i<4; i++) {
+        int nx = x + shape4[i].x, ny = y + shape4[i].y;
+        if(nx < 0 || ny < 0 || nx >= N || ny >= M) return;
+        tmp += map[nx][ny];
+    }
+    answer = answer > tmp ? answer :tmp;
+}
+
+void DFS(int x, int y, int count, int sum) {
+    if(count == 4) {
+        answer = answer > sum ? answer : sum;
+        return;
+    }
+
+    for(int i=0; i<4; i++) {
+        int nx = x + dx[i], ny = y + dy[i];
+        if(nx < 0 || ny < 0 || nx >= N || ny >= M) continue;
+        if(visited[nx][ny] == 1) continue;
+        visited[nx][ny] = 1;
+        DFS(nx, ny, count + 1, sum + map[nx][ny]);
+        visited[nx][ny] = 0;
+    }
+}
+
+int main() {
     cin >> N >> M;
-
-    for(int i=0; i<N; i++)
-    {
+    for(int i=0; i<N; i++) {
         for(int j=0; j<M; j++) cin >> map[i][j];
     }
 
-    for(int i=0; i<N; i++)
-    {
-        for(int j=0; j<M; j++)
-        {
+    for(int i=0; i<N; i++) {
+        for(int j=0; j<M; j++){
             visited[i][j] = 1;
-            solve(i, j, 1, map[i][j]);
+            DFS(i, j, 1, map[i][j]);
             visited[i][j] = 0;
+            speacial1(i, j);
+            speacial2(i, j);
+            speacial3(i, j);
+            speacial4(i, j);
         }
     }
 
-    cout << ans << "\n";
+    cout << answer << endl;
 
     return 0;
 }
