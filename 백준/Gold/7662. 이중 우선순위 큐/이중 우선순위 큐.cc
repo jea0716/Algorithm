@@ -1,47 +1,65 @@
 #include <iostream>
-#include <set>
+#include <queue>
+#include <map>
 
 using namespace std;
 
-int main()
-{
+priority_queue<int, vector<int>, greater<int> > min_pq;
+priority_queue<int> max_pq;
+map<int, int> cnt;
+
+void insert(int n) {
+    min_pq.push(n);
+    max_pq.push(n);
+    cnt[n]++;
+}
+
+void deleteMax() {
+    if(!max_pq.empty()) {
+        cnt[max_pq.top()]--;
+        max_pq.pop();
+    }
+}
+
+void deleteMin() {
+    if(!min_pq.empty()) {
+        cnt[min_pq.top()]--;
+        min_pq.pop();
+    }
+}
+
+void clean() {
+    while(!min_pq.empty() && cnt[min_pq.top()] == 0) min_pq.pop();
+    while(!max_pq.empty() && cnt[max_pq.top()] == 0) max_pq.pop();
+}
+
+int main() {
     ios::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int num_case;
-    cin >> num_case;
-    for (int k = 0; k < num_case; k++)
-    {
-        int n;
-        cin >> n;
-        multiset<int> s;
-        for (int i = 0; i < n; i++)
-        {
-            char c;
-            int tmp;
-            cin >> c >> tmp;
-            if(c == 'I')
-            {
-                s.insert(tmp);
-            }
-            else if(c == 'D')
-            {
-                if(s.empty())
-                    continue;
-                else if(tmp == 1){
-                    s.erase(--s.end());
-                }
-                else if(tmp == -1)
-                {
-                    s.erase(s.begin());
-                }
+    int N, n; cin >> N;
+    char cmd;
+    for(int i=0; i<N; i++) {
+        while(!min_pq.empty()) min_pq.pop();
+        while(!max_pq.empty()) max_pq.pop();
+        cnt.clear();
+
+        int k; cin >> k;
+        for(int i=0; i<k; i++) {
+            cin >> cmd >> n;
+
+            if(cmd == 'I') insert(n);
+            else {
+                if(n == 1) deleteMax();
+                else deleteMin();
+                clean();
             }
         }
-        if(s.empty())
-            cout << "EMPTY" << '\n';
-        else 
-        {
-            cout << *(--s.end()) << " " << *s.begin() << '\n';
-        }
+
+        clean();
+        if(max_pq.empty() || min_pq.empty()) cout << "EMPTY\n";
+        else cout << max_pq.top() << " " << min_pq.top() << "\n";
     }
+
+    return 0;
 }
