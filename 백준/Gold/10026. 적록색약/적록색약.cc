@@ -1,123 +1,104 @@
 #include <iostream>
+#include <vector>
 #include <queue>
-#include <string>
 
 using namespace std;
 
-int n, arr[105][105], arr2[105][105], check[105][105], check2[105][105];
+struct node {
+    int x, y;
+};
 
-void bfs(int x, int y, int c)
-{
-    queue<int> q[2];
-    q[0].push(x); q[1].push(y);
-    check[x][y] = 1;
+int N, cnt, cnt_RGB;
+char c[101];
 
-    while(!q[0].empty())
-    {
-        int a = q[0].front(), b = q[1].front();
-        q[0].pop(); q[1].pop();
+int map[101][101];
+int map_RGB[101][101];
+bool visited[101][101];
+bool visited_RGB[101][101];
 
-        if(check[a-1][b] == 0 && arr[a-1][b] == c)
-        {
-            q[0].push(a-1); q[1].push(b);
-            check[a-1][b] = 1;
-        }
-        if(check[a+1][b] == 0 && arr[a+1][b] == c)
-        {
-            q[0].push(a+1); q[1].push(b);
-            check[a+1][b] = 1;
-        }
-        if(check[a][b-1] == 0 && arr[a][b-1] == c)
-        {
-            q[0].push(a); q[1].push(b-1);
-            check[a][b-1] = 1;
-        }
-        if(check[a][b+1] == 0 && arr[a][b+1] == c)
-        {
-            q[0].push(a); q[1].push(b+1);
-            check[a][b+1] = 1;
+int dx[] = { 0, 0, 1, -1};
+int dy[] = { 1, -1, 0, 0};
+
+void BFS(int x, int y) {
+    queue <node> q;
+    q.push({ x, y });
+    visited[x][y] = true;
+
+    while(!q.empty()) {
+        int nx = q.front().x;
+        int ny = q.front().y;
+        q.pop();
+
+        for(int i=0; i<4; i++) {
+            if(nx + dx[i] < 0 || nx + dx[i] >= N) continue;
+            if(ny + dy[i] < 0 || ny + dy[i] >= N) continue;
+
+            if(!visited[nx + dx[i]][ny + dy[i]] && map[nx + dx[i]][ny + dy[i]] == map[x][y]) {
+                visited[nx + dx[i]][ny + dy[i]] = true;
+                q.push({ nx + dx[i], ny + dy[i] });
+            }
         }
     }
 }
 
-void bfs2(int x, int y, int c)
-{
-    queue<int> q2[2];
-    q2[0].push(x); q2[1].push(y);
-    check2[x][y] = 1;
+void BFS_RGB(int x, int y) {
+    queue <node> q;
+    q.push({ x, y });
+    visited_RGB[x][y] = true;
 
-    while(!q2[0].empty())
-    {
-        int a = q2[0].front(), b = q2[1].front();
-        q2[0].pop(); q2[1].pop();
+    while(!q.empty()) {
+        int nx = q.front().x;
+        int ny = q.front().y;
+        q.pop();
 
-        if(check2[a-1][b] == 0 && arr2[a-1][b] == c)
-        {
-            q2[0].push(a-1); q2[1].push(b);
-            check2[a-1][b] = 1;
-        }
-        if(check2[a+1][b] == 0 && arr2[a+1][b] == c)
-        {
-            q2[0].push(a+1); q2[1].push(b);
-            check2[a+1][b] = 1;
-        }
-        if(check2[a][b-1] == 0 && arr2[a][b-1] == c)
-        {
-            q2[0].push(a); q2[1].push(b-1);
-            check2[a][b-1] = 1;
-        }
-        if(check2[a][b+1] == 0 && arr2[a][b+1] == c)
-        {
-            q2[0].push(a); q2[1].push(b+1);
-            check2[a][b+1] = 1;
+        for(int i=0; i<4; i++) {
+            if(nx + dx[i] < 0 || nx + dx[i] >= N) continue;
+            if(ny + dy[i] < 0 || ny + dy[i] >= N) continue;
+
+            if(!visited_RGB[nx + dx[i]][ny + dy[i]] && map_RGB[nx + dx[i]][ny + dy[i]] == map_RGB[x][y]) {
+                visited_RGB[nx + dx[i]][ny + dy[i]] = true;
+                q.push({ nx + dx[i], ny + dy[i] });
+            }
         }
     }
 }
 
-int main()
-{
-    cin >> n;
-    string s;
-    for(int i=1; i<=n; i++)
-    {
-        cin >> s;
-        for(int j=0; j<s.length(); j++)
-        {
-            if(s[j] == 'R')
-            {
-                arr[i][j+1] = 1; arr2[i][j+1] = 1;
+int main() {
+    ios::sync_with_stdio(false); cin.tie(NULL);
+    
+    cin >> N;
+    for(int i=0; i<N; i++) {
+        cin >> c;
+        for(int j=0; j<N; j++) {
+            if(c[j] == 'R') {
+                map[i][j] = 1;
+                map_RGB[i][j] = 1;
             }
-            else if(s[j] == 'G')
-            {
-                arr[i][j+1] = 2; arr2[i][j+1] = 1;
+            if(c[j] == 'G') {
+                map[i][j] = 2;
+                map_RGB[i][j] = 1;
             }
-            else if(s[j] == 'B')
-            {
-                arr[i][j+1] = 3; arr2[i][j+1] = 3;
+            if(c[j] == 'B') {
+                map[i][j] = 3;
+                map_RGB[i][j] = 2;
             }
         }
     }
 
-    int answer = 0, answer2 = 0;
-
-    for(int i=1; i<=n; i++)
-    {
-        for(int j=1; j<=n; j++)
-        {
-            if(check[i][j] == 0)
-            {
-                bfs(i, j, arr[i][j]);
-                answer++;
+    for(int i=0; i<N; i++) {
+        for(int j=0; j<N; j++) {
+            if(!visited[i][j]) {
+                BFS(i, j);
+                cnt++;
             }
-            if(check2[i][j] == 0)
-            {
-                bfs2(i, j, arr2[i][j]);
-                answer2++;
+            if(!visited_RGB[i][j]) {
+                BFS_RGB(i, j);
+                cnt_RGB++;
             }
         }
     }
 
-    cout << answer << " " << answer2 << endl;
+    cout << cnt << " " << cnt_RGB << '\n';
 
     return 0;
 }
