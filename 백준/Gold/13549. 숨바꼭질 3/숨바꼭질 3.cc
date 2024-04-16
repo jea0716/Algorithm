@@ -4,49 +4,51 @@
 
 using namespace std;
 
-#define INF 999999999
+struct node {
+    int n, cnt;
+};
 
-int n, k;
-int visited[222222];
+int N, K, answer;
+int visited[200001];
 
+void BFS() {
+    queue <node> q;
+    q.push({ N, 0 });
+    visited[N] = 1;
 
-void bfs(int n)
-{
-    deque <int> q;
-    q.push_back(n);
-    visited[n] = 0;
+    while(!q.empty()) {
+        int n = q.front().n;
+        int cnt = q.front().cnt;
+        q.pop();
 
-    while(!q.empty())
-    {
-        int x = q.front();
-        q.pop_front();
-        if(x == k) return;
-        if(x * 2 <= 200000 && visited[x] < visited[x * 2])
-        {
-            visited[x * 2] = visited[x];
-            q.push_front(x * 2);
+        if(n == K) {
+            answer = cnt;
+            return;
         }
-        if(x >= 0 && visited[x] + 1 < visited[x - 1])
-        {
-            visited[x - 1] = visited[x] + 1;
-            q.push_back(x - 1);
+
+        if(n * 2 <= 2 * K && !visited[n * 2]) {
+            q.push({ n * 2, cnt });
+            visited[n * 2] = 1;
         }
-        if(x < 100001 && visited[x] + 1 < visited[x + 1])
-        {
-            visited[x + 1] = visited[x] + 1;
-            q.push_back(x + 1);
+
+        if(n - 1 >= 0 && !visited[n - 1]) {
+            q.push({ n - 1, cnt + 1 });
+            visited[n - 1] = 1;
+        }
+
+        if(n + 1 <= 2 * K && !visited[n + 1]) {
+            q.push({ n + 1, cnt + 1 });
+            visited[n + 1] = 1;
         }
     }
 }
 
-int main()
-{
-    cin >> n >> k;
-    for(int i=0; i<=100000; i++) visited[i] = INF;
+int main() {
+    cin >> N >> K;
 
-    bfs(n);
+    BFS();
 
-    cout << visited[k] << endl;
+    cout << answer << "\n";
 
     return 0;
 }
