@@ -1,66 +1,56 @@
 #include <iostream>
-#include <vector>
 #include <queue>
+#include <vector>
 
 using namespace std;
 
-#define INF 99999999
+const int INF = 1e9;
 
-vector <pair <int, int> > v[20100];
+int V, E, S;
+vector <vector<pair<int, int> > > graph(20001);
 
-void solve(int num, int dist[])
-{
-    int cost, cur;
-    int ncost, next;
-    int i;
+void dijkstra(int s) {
+    int n = V + 1;
+    vector <int> dist(n, INF);
+    priority_queue<pair<int, int>, vector<pair<int, int> >, greater<pair<int, int> > > pq;
 
-    priority_queue<pair<int, int> > pq;
+    dist[s] = 0;
+    pq.push({ 0, s });
 
-    dist[num] = 0;
-    pq.push(make_pair(0, num));
-    while(!pq.empty())
-    {
-        cost = -pq.top().first;
-        cur = pq.top().second;
+    while(!pq.empty()) {
+        int cur_dist = pq.top().first;
+        int cur_node = pq.top().second;
         pq.pop();
-        i = 0;
 
-        while(i < v[cur].size())
-        {
-            next = v[cur][i].first;
-            ncost = v[cur][i].second;
-            if(dist[next] > cost + ncost)
-            {
-                dist[next] = cost + ncost;
-                pq.push(make_pair(-dist[next], next));
+        if(dist[cur_node] < cur_dist) continue;
+
+        for(auto& edge: graph[cur_node]) {
+            int next_node = edge.first;
+            int next_dist = edge.second + cur_dist;
+
+            if(next_dist < dist[next_node]) {
+                dist[next_node] = next_dist;
+                pq.push({ next_dist, next_node });
             }
-            i++;
         }
+    }
+
+    for(int i=1; i<=V; i++) {
+        if(dist[i] == INF) cout << "INF\n";
+        else cout << dist[i] << "\n";
     }
 }
 
-int main()
-{
-    int n, m; cin >> n >> m;
+int main() {
+    cin >> V >> E >> S;
 
-    int dist[n+1];
-    for(int i=1; i<=n; i++) dist[i] = INF;
-
-    int num; cin >> num;
-
-    int start, end, cost;
-    for(int i=0; i<m; i++)
-    {
-        cin >> start >> end >> cost;
-        v[start].push_back(make_pair(end, cost));
+    int to, from, weight;
+    for(int i=0; i<E; i++) {
+        cin >> to >> from >> weight;
+        graph[to].push_back({ from, weight });
     }
 
-    solve(num, dist);
-
-    for(int i=1; i<=n; i++){
-        if(dist[i] == INF) cout << "INF" << "\n";
-        else cout << dist[i] << "\n";
-    }
+    dijkstra(S);
 
     return 0;
 }
