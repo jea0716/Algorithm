@@ -1,59 +1,63 @@
 #include <iostream>
-#include <string>
 #include <queue>
-#include <tuple>
+#include <vector>
+#include <algorithm>
+#include <string>
 
 using namespace std;
 
-int visited[26];
-int map[22][22];
-int N, M, answer, tmp;
-int col[4] = {-1, 0, 1, 0};
-int row[4] = {0, -1, 0, 1};
+int N, M, answer;
+int map[21][21];
 
-void reset() {
-    tmp = 0;
-    for(int i=0; i<26; i++) {
-        visited[i] = 0;
+int dx[] = { 0, 0, 1, -1 };
+int dy[] = { 1, -1, 0, 0 };
+
+bool visited[26];
+
+struct node {
+    int x, y, cnt;
+    string alpha;
+};
+
+bool check(int x, int y, string s) {
+    for(int i=0; i<s.length(); i++) {
+        if(map[x][y] == s[i]) return false;
     }
 
-    return;
+    return true;
 }
 
-void solve(int n, int m) {
-    visited[map[n][m]] = 1;
-    tmp++;
-    if(tmp > answer) answer = tmp;
+void DFS(int x, int y, int n) {
+    if(n > answer) answer = n;
 
     for(int i=0; i<4; i++) {
-        if(n+col[i] >= 0 && n+col[i] < N && m+row[i] >= 0 && m+row[i] < M) {
-            if(visited[map[n+col[i]][m+row[i]]] == 0) {
-                solve(n+col[i], m+row[i]);
-                visited[map[n+col[i]][m+row[i]]] = 0;
-                tmp--;
-            }
+        if(x + dx[i] >= N || x + dx[i] < 0) continue;
+        if(y + dy[i] >= M || y + dy[i] < 0) continue;
+
+        int tmp = map[x + dx[i]][y + dy[i]];
+        if(!visited[tmp]) {
+            visited[tmp] = true;
+            DFS(x + dx[i], y + dy[i], n + 1);
+            visited[tmp] = false;
         }
     }
-
-    return;
 }
 
 int main() {
-    cin.tie(NULL);
-    ios::sync_with_stdio(false);
-
+    ios::sync_with_stdio(false); cin.tie(NULL);
     cin >> N >> M;
-    string s;
 
     for(int i=0; i<N; i++) {
-        cin >> s;
         for(int j=0; j<M; j++) {
-            map[i][j] = int(s[j] - 'A');
+            char c; cin >> c;
+            map[i][j] = c - 'A';
         }
     }
 
-    solve(0, 0);
-    cout << answer << "\n";
+    visited[map[0][0]] = true;
+    DFS(0, 0, 1);
 
+    cout << answer << endl;
+    
     return 0;
 }
