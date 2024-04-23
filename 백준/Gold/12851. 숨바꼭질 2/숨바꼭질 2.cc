@@ -1,59 +1,57 @@
 #include <iostream>
 #include <queue>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
-int N, M; 
-int min_sec = 987654321;
-int min_cnt;
-int visited[200001];
+struct node {
+    int n, cnt;
+};
+const int INF = 987654321;
 
-void solve(int n, int sec)
-{
-    queue <pair<int, int> > q;
-    q.push(make_pair(n, 0));
-    visited[n] = 1;
+int N, K, answer = INF, answer_num;
+vector<int> visited(200001, INF);
 
-    while(!q.empty())
-    {
-        int tmp = q.front().first;
-        int tmp_sec = q.front().second;
+void BFS() {
+    queue <node> q;
+    q.push({ N, 0 });
+    visited[N] = 0;
+
+    while(!q.empty()) {
+        int n = q.front().n;
+        int cnt = q.front().cnt;
         q.pop();
 
-        visited[tmp] = 1;
-
-        if(tmp == M)
-        {
-            if(min_sec > tmp_sec)
-            {
-                min_sec = tmp_sec;
-                min_cnt = 1;
+        if(n == K) {
+            if(answer == cnt) answer_num++;
+            else {
+                answer = cnt;
+                answer_num = 1;
             }
-            else if(min_sec == tmp_sec) min_cnt++;
-        }
-        
-        if(tmp+1 <= M && visited[tmp + 1] == 0)
-        {
-            q.push(make_pair(tmp+1, tmp_sec+1));
         }
 
-        if(tmp-1 >= 0 && visited[tmp - 1] == 0)
-        {
-            q.push(make_pair(tmp-1, tmp_sec+1));
+        if(n + 1 <= K && cnt + 1 <= visited[n + 1] ) {
+            q.push({ n + 1, cnt + 1 });
+            visited[n + 1] = cnt + 1;
         }
-
-        if(tmp*2 <= M*2 && visited[tmp * 2] == 0)
-        {
-            q.push(make_pair(tmp*2, tmp_sec+1));
+        if(n - 1 >= 0 && cnt + 1 <= visited[n - 1] ) {
+            q.push({ n - 1, cnt + 1 });
+            visited[n - 1] = cnt + 1;
+        }
+        if(n * 2 <= 2 * K && cnt + 1 <= visited[n * 2] ) {
+            q.push({ n * 2, cnt + 1 });
+            visited[n * 2] = cnt + 1;
         }
     }
 }
 
-int main()
-{
-    cin >> N >> M;
+int main() {
+    cin >> N >> K;
 
-    solve(N, 0);
+    BFS();
 
-    cout << min_sec << "\n" << min_cnt << endl;
+    cout << answer << '\n' << answer_num << '\n';
+
+    return 0;
 }
