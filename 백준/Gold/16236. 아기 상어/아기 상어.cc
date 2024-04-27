@@ -1,157 +1,108 @@
 #include <iostream>
-#include <vector>
 #include <queue>
+#include <vector>
+#include <algorithm>
+#include <string>
 
 using namespace std;
 
-struct props{
-    int x;
-    int y;
-    int sec;
+struct node {
+    int dist, x, y;
+};
+
+struct compare {
+    bool operator()(const node& n1, const node& n2) {
+        if(n1.dist == n2.dist) {
+            if(n1.x == n2.x) {
+                return n1.y > n2.y;
+            }   
+            return n1.x > n2.x;
+        }
+        return n1.dist > n2.dist;
+    }
 };
 
 int N;
-int map[20][20], visited[20][20];
-int baby_shark = 2, eat, ans, tmp_sec, x, y, tmp_x, tmp_y;
+int map[21][21];
+int x, y, weight = 2, ate = 0, sec = 0;
+bool visited[21][21], exist = true;
+priority_queue<node, vector<node>, compare> fishes;
 
-vector <pair<int, int> > area;
+int dx[] = { 1, -1, 0, 0 };
+int dy[] = { 0, 0, 1, -1 };
 
-void solve(int start_x, int start_y)
-{
-    queue <props> q;
-    props start;
-    start.x = start_x;
-    start.y = start_y;
-    start.sec = 0;
-    q.push(start);
-    visited[start_x][start_y] = 1;
+void BFS() {
+    for(int i=0; i<N; i++) {
+        for(int j=0; j<N; j++) {
+            visited[i][j] = false;
+        }
+    }
+    queue<node> q;
+    q.push({ 0, x, y });
+    visited[x][y] = true;
+    int min_dist = 1e9;
 
-    while(!q.empty())
-    {
-        int a = q.front().x;
-        int b = q.front().y;
-        int c = q.front().sec;
+
+    while(!q.empty()) {
+        int nx = q.front().x;
+        int ny = q.front().y;
+        int ndist = q.front().dist;
         q.pop();
 
-        if(map[a][b] > 0 && map[a][b] < baby_shark && tmp_sec >= c && map[a][b] != 9)
-        {
-            if(tmp_sec > c)
-            {
-                tmp_sec = c; x = a; y = b;
-                area.erase(area.begin(), area.end());
-                area.push_back(make_pair(x, y));
-            }
-            else
-            {
-                area.push_back(make_pair(a, b));
-            }
+        if(ndist > min_dist) continue;
+
+        if(map[nx][ny] > 0 && map[nx][ny] < weight) {
+            fishes.push({ ndist, nx, ny });
+            if(min_dist > ndist) min_dist = ndist;
         }
 
-        props tmp;
+        for(int i=0; i<4; i++) {
+            if(nx + dx[i] < 0 || nx + dx[i] >= N) continue;
+            if(ny + dy[i] < 0 || ny + dy[i] >= N) continue;
+            if(visited[nx + dx[i]][ny + dy[i]]) continue;
+            if(map[nx + dx[i]][ny + dy[i]] > weight) continue;
 
-        if(b - 1 >= 0 && visited[a][b-1] == 0 && map[a][b-1] <= baby_shark)
-        {
-            visited[a][b-1] = 1;
-            tmp.x = a;
-            tmp.y = b - 1;
-            tmp.sec = c + 1;
-            q.push(tmp);
-        }
-        if(a - 1 >= 0 && visited[a-1][b] == 0 && map[a-1][b] <= baby_shark)
-        {
-            visited[a-1][b] = 1;
-            tmp.x = a - 1;
-            tmp.y = b;
-            tmp.sec = c + 1;
-            q.push(tmp);
-        }
-        if(a + 1 < N && visited[a+1][b] == 0 && map[a+1][b] <= baby_shark)
-        {
-            visited[a+1][b] = 1;
-            tmp.x = a + 1;
-            tmp.y = b;
-            tmp.sec = c + 1;
-            q.push(tmp);
-        }
-        if(b + 1 < N && visited[a][b+1] == 0 && map[a][b+1] <= baby_shark)
-        {
-            visited[a][b+1] = 1;
-            tmp.x = a;
-            tmp.y = b + 1;
-            tmp.sec = c + 1;
-            q.push(tmp);
+            q.push({ ndist + 1, nx + dx[i], ny + dy[i] });
+            visited[nx + dx[i]][ny +dy[i]] = true;
         }
     }
+
+    if(!fishes.empty()) {
+        node tmp = fishes.top();
+        sec += tmp.dist;
+        map[x][y] = 0;
+        x = tmp.x;
+        y = tmp.y;
+        map[tmp.x][tmp.y] = 9;
+        ate++;
+        if(ate == weight) {
+            weight = weight + 1 > 8 ? 8 : weight + 1;
+            ate = 0;
+        }
+        while(!fishes.empty()) fishes.pop();
+    }
+    else exist = false;
 }
 
-int main()
-{
-    ios::sync_with_stdio(false);
-    cin.tie(0);
-    cin >> N;
+int main() {
+    ios::sync_with_stdio(false); cin.tie(NULL);
 
-    for(int i=0; i<N; i++)
-    {
-        for(int j=0; j<N; j++) cin >> map[i][j];
+    cin >> N;
+    for(int i=0; i<N; i++) {
+        for(int j=0; j<N; j++) {
+            cin >> map[i][j];
+            if(map[i][j] == 9) {
+                x = i;
+                y = j;
+            }
+        }
     }
 
-    int cnt;
+    while(exist) {
+        BFS();
+    }
 
-    do
-    {
-        cnt = 0; tmp_sec = 999999999;
-        for(int i=0; i<N; i++)
-        {
-            for(int j=0; j<N; j++)
-            {
-                if(map[i][j] == 9)
-                {
-                    x = i; y = j;
-                }
-                else if(map[i][j] != 0 && map[i][j] < baby_shark) cnt++;
-                visited[i][j] = 0;
-            }
-        }
-        
-        
-        tmp_x = x, tmp_y = y;
-        solve(x, y);
-        for(int i=0; i<area.size(); i++)
-        {
-            if(i == 0)
-            {
-                x = area[0].first; y = area[0].second;
-            }
-            else
-            {
-                if(area[i].first < x)
-                {
-                    x = area[i].first;
-                    y = area[i].second;
-                }
-                if(area[i].first == x && area[i].second < y)
-                {
-                    x = area[i].first;
-                    y = area[i].second;
-                }
-            }
-        }
-
-        if(tmp_x != x || tmp_y != y)
-        {
-            map[tmp_x][tmp_y] = 0; map[x][y] = 9; eat++;
-        }
-
-        if(baby_shark == eat)
-        {
-            baby_shark++;
-            eat = 0;
-        }
-
-        if(tmp_sec != 999999999) ans += tmp_sec;
-    } while (!(tmp_x == x && tmp_y == y));
-
-    cout << ans << endl;
+    cout << sec << endl;
 
     return 0;
 }
