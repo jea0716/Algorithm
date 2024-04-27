@@ -1,104 +1,60 @@
 #include <iostream>
-#include <vector>
 #include <queue>
+#include <vector>
+#include <algorithm>
+#include <string>
 
 using namespace std;
 
-#define INF 999999999
+const int INF = 1e9;
+int N, M, X, answer;
+vector<vector<pair<int, int> > > graph(1001);
 
-int N, M, X;
-int s_dist[1001], e_dist[1001];
+int dijkstra(int s, int e) {
+    if(s == e) return 0;
+    priority_queue<pair<int, int>, vector<pair<int, int> >, greater<pair<int, int> > > pq;
+    pq.push({ 0, s });
+    vector<int> dist(N + 1, INF);
 
-vector <pair<int, int> > V[1001];
-vector <pair<int, int> > V2[1001];
-
-void dijkstra(int start)
-{
-    int cost, cur;
-    int ncost, next;
-    priority_queue <pair<int, int>, vector<pair<int, int> >, greater<pair<int, int> > >pq;
-    pq.push(make_pair(0, start));
-    s_dist[start] = 0;
-
-    while(!pq.empty())
-    {
-        cost = -pq.top().first;
-        cur = pq.top().second;
+    while(!pq.empty()) {
+        int cur_dist = pq.top().first;
+        int cur_node = pq.top().second;
         pq.pop();
 
-        if(s_dist[cur] < cost) continue;
+        if(dist[cur_node] < cur_dist) continue;
 
-        for(int i=0; i<V[cur].size(); i++)
-        {
-            ncost = V[cur][i].first;
-            next = V[cur][i].second;
+        for(auto &edge: graph[cur_node]) {
+            int next_node = edge.first;
+            int next_dist = edge.second + cur_dist;
 
-            if(s_dist[next] > cost + ncost)
-            {
-                s_dist[next] = cost + ncost;
-                pq.push(make_pair(-s_dist[next], next));
-            }
-        }
-    }
-}
-
-void dijkstra2(int start)
-{
-    int cost, cur;
-    int ncost, next;
-    priority_queue <pair<int, int>, vector<pair<int, int> >, greater<pair<int, int> > >pq;
-    pq.push(make_pair(0, start));
-    e_dist[start] = 0;
-
-    while(!pq.empty())
-    {
-        cost = -pq.top().first;
-        cur = pq.top().second;
-        pq.pop();
-
-        if(e_dist[cur] < cost) continue;
-
-        for(int i=0; i<V2[cur].size(); i++)
-        {
-            ncost = V2[cur][i].first;
-            next = V2[cur][i].second;
-
-            if(e_dist[next] > cost + ncost)
-            {
-                e_dist[next] = cost + ncost;
-                pq.push(make_pair(-e_dist[next], next));
+            if(dist[next_node] > next_dist) {
+                pq.push({ next_dist, next_node });
+                dist[next_node] = next_dist;
             }
         }
     }
 
-    return ;
+    return dist[e];
 }
 
-int main()
-{
+int main() {
+    ios::sync_with_stdio(false); cin.tie(NULL);
     cin >> N >> M >> X;
 
-    for(int i=0; i<=N; i++)
-    {
-        s_dist[i] = INF;
-        e_dist[i] = INF;
+    int to, from, weight;
+    for(int i=0; i<M; i++) {
+        cin >> to >> from >> weight;
+        graph[to].push_back({ from, weight });
     }
 
-    int start, end, cost;
-    for(int i=0; i<M; i++)
-    {
-        cin >> start >> end >> cost;
-        V[start].push_back(make_pair(cost, end));
-        V2[end].push_back(make_pair(cost, start));
+    for(int i=1; i<=N; i++) {
+        int stoe = dijkstra(i, X);
+        int etos = dijkstra(X, i);
+
+        answer = answer > stoe + etos ? answer : stoe + etos;
     }
 
-    dijkstra(X);
-    dijkstra2(X);
-
-    int answer = 0;
-    for(int i=1; i<=N; i++) answer = max(answer, s_dist[i]+e_dist[i]);
-
-    cout << answer << "\n";
+    cout << answer << endl;
 
     return 0;
 }
