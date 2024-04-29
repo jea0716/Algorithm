@@ -1,63 +1,54 @@
 #include <iostream>
-#include <vector>
 #include <queue>
+#include <vector>
+#include <algorithm>
+#include <string>
 
 using namespace std;
 
-#define INF 999999999
+const int INF = 1e9;
+int N, M;
+vector<vector<pair<int, int> > > graph(1001);
 
-vector <pair <int, int> > V[1001];
-int dist[1001];
-
-void dijkstra(int start)
-{
-    int cost, cur;
-    int ncost, next;
+int dijkstra(int s, int e) {
     priority_queue<pair<int, int>, vector<pair<int, int> >, greater<pair<int, int> > > pq;
+    vector<int> dist(N + 1, INF);
+    dist[s] = 0;
+    pq.push({ 0, s });
 
-    pq.push(make_pair(0, start));
-    dist[start] = 0;
-
-    while(!pq.empty())
-    {
-        cost = -pq.top().first;
-        cur = pq.top().second;
+    while(!pq.empty()) {
+        int cur_dist = pq.top().first;
+        int cur_node = pq.top().second;
         pq.pop();
 
-        if(dist[cur] < cost) continue;
+        if(dist[cur_node] < cur_dist) continue;
 
-        for(int i=0; i<V[cur].size(); i++)
-        {
-            next = V[cur][i].first;
-            ncost = V[cur][i].second;
-            if(dist[next] > cost + ncost)
-            {
-                dist[next] = cost + ncost;
-                pq.push(make_pair(-dist[next], next));
+        for(auto &edge: graph[cur_node]) {
+            int next_node = edge.first;
+            int next_dist = edge.second + cur_dist;
+
+            if(dist[next_node] > next_dist) {
+                pq.push({ next_dist, next_node });
+                dist[next_node] = next_dist;
             }
         }
     }
+
+    return dist[e];
 }
 
-int main()
-{
-    ios::sync_with_stdio(false);
-    cin.tie(0);
-    int n, m; cin >> n >> m;
+int main() {
+    ios::sync_with_stdio(false); cin.tie(NULL);
+    cin >> N >> M;
 
-    for(int i=1; i<=n; i++) dist[i] = INF;
-
-    int start, end, cost;
-    for(int i=0; i<m; i++)
-    {
-        cin >> start >> end >> cost;
-        V[start].push_back(make_pair(end, cost));
+    int to, from, weight;
+    for(int i=0; i<M; i++) {
+        cin >> to >> from >> weight;
+        graph[to].push_back({ from, weight });
     }
 
-    int s_point, e_point; cin >> s_point >> e_point;
-    dijkstra(s_point);
-
-    cout << dist[e_point] << "\n";
+    int s, e; cin >> s >> e;
+    cout << dijkstra(s, e) << endl;
 
     return 0;
 }
