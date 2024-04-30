@@ -1,171 +1,72 @@
 #include <iostream>
-#include <vector>
 #include <queue>
+#include <vector>
+#include <algorithm>
 #include <string>
-#include <tuple>
 
 using namespace std;
 
-#define INF 999999999
+const int INF = 1e9;
 
-struct props{
-    int first;
-    int second;
-    int third;
+struct node {
+    int x, y, cnt, wall;
 };
 
-int N, M, K;
+int N, M, K, answer = INF;
 int map[1001][1001];
-int visited[11][1001][1001];
+int visited[1001][1001][11];
 
-void bfs(int w, int start_x, int start_y)
-{
-    queue <props> q;
-    props start;
-    start.first = w;
-    start.second = start_x;
-    start.third = start_y;
-    q.push(start);
-    visited[w][start_x][start_y] = 1;
+int dx[] = { 0, 0, 1, -1 };
+int dy[] = { -1, 1, 0, 0 };
 
-    while(!q.empty())
-    {
-        int z = q.front().first;
-        int x = q.front().second;
-        int y = q.front().third;
+void BFS() {
+    queue <node> q;
+    q.push({ 0, 0, 1, 0 });
+    visited[0][0][0] = true;
+
+    while(!q.empty()) {
+        int nx = q.front().x;
+        int ny = q.front().y;
+        int ncnt = q.front().cnt;
+        int nwall = q.front().wall;
         q.pop();
 
-        props tmp;
+        if(ncnt > answer) continue;
+        if(nx == N - 1 && ny == M - 1) answer = ncnt;
 
-        if(x + 1 <= N && map[x+1][y] == 0)
-        {   
-            if(visited[z][x+1][y] > visited[z][x][y] + 1)
-            {  
-                visited[z][x+1][y] = visited[z][x][y] + 1;
-                tmp.first = z;
-                tmp.second = x + 1;
-                tmp.third = y;
-                q.push(tmp);
+        for(int i=0; i<4; i++) {
+            if(nx + dx[i] < 0 || nx + dx[i] >= N) continue;
+            if(ny + dy[i] < 0 || ny + dy[i] >= M) continue;
+            if(visited[nx + dx[i]][ny + dy[i]][nwall]) continue;
+
+            if(map[nx + dx[i]][ny + dy[i]] == 1 && nwall < K && !visited[nx + dx[i]][ny + dy[i]][nwall - 1]) {
+                q.push({ nx + dx[i], ny + dy[i], ncnt + 1, nwall + 1 });
+                visited[nx + dx[i]][ny + dy[i]][nwall + 1] = true;
             }
-        }
-        if(x + 1 <= N && map[x+1][y] == 1 && z <= K && visited[z+1][x+1][y] == INF)
-        {
-            if(visited[z+1][x+1][y] >= visited[z][x][y] + 1)
-            {
-                visited[z+1][x+1][y] = visited[z][x][y] + 1;
-                tmp.first = z + 1;
-                tmp.second = x + 1;
-                tmp.third = y;
-                q.push(tmp);
-            }
-        }
-        if(x - 1 >= 0 && map[x-1][y] == 0)
-        {
-            if(visited[z][x-1][y] > visited[z][x][y] + 1)
-            {
-                visited[z][x-1][y] = visited[z][x][y] + 1;
-                tmp.first = z;
-                tmp.second = x - 1;
-                tmp.third = y;
-                q.push(tmp);
-            }
-        }
-        if(x - 1 >= 0 && map[x-1][y] == 1 && z <= K && visited[z+1][x-1][y] == INF)
-        {
-            if(visited[z+1][x-1][y] >= visited[z][x][y] + 1)
-            {
-                visited[z+1][x-1][y] = visited[z][x][y] + 1;
-                tmp.first = z + 1;
-                tmp.second = x - 1;
-                tmp.third = y;
-                q.push(tmp);
-            }
-        }
-        if(y + 1 <= M && map[x][y+1] == 0)
-        {
-            if(visited[z][x][y+1] > visited[z][x][y] + 1)
-            {
-                visited[z][x][y+1] = visited[z][x][y] + 1;
-                tmp.first = z;
-                tmp.second = x;
-                tmp.third = y + 1;
-                q.push(tmp);
-            }
-        }
-        if(y + 1 <= M && map[x][y+1] == 1 && z <= K && visited[z+1][x][y+1] == INF)
-        {
-            if(visited[z+1][x][y+1] >= visited[z][x][y] + 1)
-            {
-                visited[z+1][x][y+1] = visited[z][x][y] + 1;
-                tmp.first = z + 1;
-                tmp.second = x;
-                tmp.third = y + 1;
-                q.push(tmp);
-            }
-        }
-        if(y - 1 >= 0 && map[x][y-1] == 0)
-        {
-            if(visited[z][x][y-1] > visited[z][x][y] + 1)
-            {
-                visited[z][x][y-1] = visited[z][x][y] + 1;
-                tmp.first = z;
-                tmp.second = x;
-                tmp.third = y - 1;
-                q.push(tmp);
-            }
-        }
-        if(y - 1 >= 0 && map[x][y-1] == 1 && z <= K && visited[z+1][x][y-1] == INF)
-        {
-            if(visited[z+1][x][y-1] >= visited[z][x][y] + 1)
-            {
-                visited[z+1][x][y-1] = visited[z][x][y] + 1;
-                tmp.first = z + 1;
-                tmp.second = x;
-                tmp.third = y - 1;
-                q.push(tmp);
+
+            if(map[nx + dx[i]][ny + dy[i]] == 0) {
+                q.push({ nx + dx[i], ny + dy[i], ncnt + 1, nwall });
+                visited[nx + dx[i]][ny + dy[i]][nwall] = true;
             }
         }
     }
 }
 
-int main()
-{
-    ios::sync_with_stdio(false);
-    cin.tie(0);
-
+int main() {
     cin >> N >> M >> K;
 
-    string s;
-    for(int i=0; i<N; i++)
-    {
-        cin >> s;
-        for(int j=0; j<M; j++)
-        {
-            map[i][j] = s[j] - '0';
+    char c;
+    for(int i=0; i<N; i++) {
+        for(int j=0; j<M; j++) {
+            cin >> c;
+            map[i][j] = c - '0';
         }
     }
 
-    for(int l=0; l<=K; l++)
-    {
-        for(int i=0; i<N; i++)
-        {
-            for(int j=0; j<M; j++)
-            {
-                visited[l][i][j] = INF;
-            }
-        }
-    }
+    BFS();
 
-    bfs(0, 0, 0);
-
-    int answer = -1;
-    int min_num = INF;
-    for(int i=0; i<=K; i++)
-    {
-        min_num = min(min_num, visited[i][N-1][M-1]);
-    }
-    if(min_num != INF) answer = min_num;
-    cout << answer << "\n";
+    if(answer == INF) answer = -1;
+    cout << answer << endl;
 
     return 0;
 }
