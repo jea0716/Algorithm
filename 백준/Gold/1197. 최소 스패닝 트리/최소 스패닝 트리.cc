@@ -1,47 +1,46 @@
 #include <iostream>
-#include <vector>
 #include <queue>
+#include <vector>
+#include <algorithm>
+#include <string>
 
 using namespace std;
 
-int V, E, A, B, C;
-vector <pair<int, int> > graph[10001];
-priority_queue <pair<int, int>, vector<pair<int, int> >, greater<pair <int, int> > > pq;
-int visited[10001];
-int answer;
+int V, E, answer;
+vector<bool> visited(10001);
+vector<vector<pair<int, int>>> map(10001);
+priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
 
 int main() {
-    ios_base::sync_with_stdio(false);
-	cin.tie(0);
+    ios::sync_with_stdio(false); cin.tie(NULL);
 
     cin >> V >> E;
 
+    int A, B, C;
     for(int i=0; i<E; i++) {
         cin >> A >> B >> C;
-        graph[A].push_back(make_pair(B, C));
-        graph[B].push_back(make_pair(A, C));
+        map[A].push_back({ B, C });
+        map[B].push_back({ A, C });
     }
 
-    pq.push(make_pair(0, 1));
-    
+    pq.push({ 0, 1 });
     while(!pq.empty()) {
-        int weight = pq.top().first;
-        int node = pq.top().second;
+        int cur_dist = pq.top().first;
+        int cur_node = pq.top().second;
         pq.pop();
 
-        if(visited[node]) continue;
+        if(visited[cur_node]) continue;
 
-        visited[node] = 1;
+        visited[cur_node] = true;
+        answer += cur_dist;
 
-        answer += weight;
-
-        for(int i=0; i<graph[node].size(); i++) {
-            int next_node = graph[node][i].first;
-            int next_weight = graph[node][i].second;
-
-            pq.push(make_pair(next_weight, next_node));
+        for(auto edge: map[cur_node]) {
+            if(visited[edge.first]) continue;
+            pq.push({ edge.second, edge.first });
         }
     }
 
-    cout << answer << "\n";
+    cout << answer << '\n';
+
+    return 0;
 }
