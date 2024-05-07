@@ -4,11 +4,15 @@
 
 ### 성능 요약
 
-메모리: 2044 KB, 시간: 16 ms
+메모리: 2044 KB, 시간: 304 ms
 
 ### 분류
 
 구현, 시뮬레이션
+
+### 제출 일자
+
+2024년 5월 7일 19:25:41
 
 ### 문제 설명
 
@@ -25,8 +29,8 @@
 	<ul>
 		<li>(r, c)에 있는 미세먼지는 인접한 네 방향으로 확산된다.</li>
 		<li>인접한 방향에 공기청정기가 있거나, 칸이 없으면 그 방향으로는 확산이 일어나지 않는다.</li>
-		<li>확산되는 양은 A<sub>r,c</sub>/5이고 소수점은 버린다.</li>
-		<li>(r, c)에 남은 미세먼지의 양은 A<sub>r,c</sub> - (A<sub>r,c</sub>/5)×(확산된 방향의 개수) 이다.</li>
+		<li>확산되는 양은 A<sub>r,c</sub>/5이고 소수점은 버린다. 즉, ⌊A<sub>r,c</sub>/5⌋이다.</li>
+		<li>(r, c)에 남은 미세먼지의 양은 A<sub>r,c</sub> - ⌊A<sub>r,c</sub>/5⌋×(확산된 방향의 개수) 이다.</li>
 	</ul>
 	</li>
 	<li>공기청정기가 작동한다.
@@ -43,7 +47,7 @@
 
 <p style="text-align: center;"><img alt="" src="https://upload.acmicpc.net/7b0d9d57-1296-44cd-8951-4135d27f9446/-/preview/" style="width: 268px; height: 100px;"></p>
 
-<p style="text-align: center;">왼쪽과 오른쪽에 칸이 없기 때문에, 두 방향으로만 확산이 일어났다.</p>
+<p style="text-align: center;">왼쪽과 위쪽에 칸이 없기 때문에, 두 방향으로만 확산이 일어났다.</p>
 
 <p style="text-align: center;"><img alt="" src="https://upload.acmicpc.net/cebebfa9-0056-45f1-b705-75b035888085/-/preview/" style="width: 268px; height: 100px;"></p>
 

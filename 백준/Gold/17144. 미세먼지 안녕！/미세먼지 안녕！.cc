@@ -1,100 +1,148 @@
 #include <iostream>
-#include <vector>
 #include <queue>
+#include <vector>
+#include <algorithm>
 #include <string>
-#include <tuple>
 
 using namespace std;
 
-struct aircon{
-    int x, y;
-};
-
 int R, C, T;
-int map[55][55], tmp_map[55][55];
-aircon up, down;
-bool x_true = false;
+int map[51][51];
+int diff[51][51];
+vector<pair<int, int>> airconditioner;
 
-void m_move()
-{
-    for(int i=1; i<=R; i++)
-    {
-        for(int j=1; j<=C; j++)
-        {
-            int amount = map[i][j] / 5;
-            int cnt = 0;
-            tmp_map[i][j] += map[i][j];
-            if(map[i+1][j] != -1 && i < R) {tmp_map[i+1][j] += amount; cnt++;}
-            if(map[i-1][j] != -1 && i > 1) {tmp_map[i-1][j] += amount; cnt++;}
-            if(map[i][j+1] != -1 && j < C) {tmp_map[i][j+1] += amount; cnt++;}
-            if(map[i][j-1] != -1 && j > 1) {tmp_map[i][j-1] += amount; cnt++;}
-            tmp_map[i][j] -= (amount * cnt);
-        }
-    }
+int dx[] = { 0, 0, -1, 1 };
+int dy[] = { 1, -1, 0, 0 };
 
-    for(int i=1; i<=R; i++)
-    {
-        for(int j=1; j<=C; j++)
-        {
-            map[i][j] = tmp_map[i][j];
-            tmp_map[i][j] = 0;
-        }
-    }
-}
-
-void a_on()
-{
-    map[up.x-1][1] = 0;
-    map[down.x+1][1] = 0;
-    for(int i=up.x-1; i>=1; i--) map[i][1] = map[i-1][1];
-    for(int i=1; i<=C; i++) map[1][i] = map[1][i+1];
-    for(int i=1; i<up.x; i++) map[i][C] = map[i+1][C];
-    for(int i=C; i>2; i--) map[up.x][i] = map[up.x][i-1];
-
-    for(int i=down.x+1; i<=R; i++) map[i][1] = map[i+1][1];
-    for(int i=1; i<=C; i++) map[R][i] = map[R][i+1];
-    for(int i=R; i>down.x; i--) map[i][C] = map[i-1][C];
-    for(int i=C; i>2; i--) map[down.x][i] = map[down.x][i-1];
-
-    map[up.x][2] = 0;
-    map[down.x][2] = 0;
-}
-
-int main()
-{
-    ios::sync_with_stdio(false);
-    cin.tie(0);
-    
-    cin >> R >> C >>T;
-
-    int tmp;
-    for(int i=1; i<=R; i++)
-    {
-        for(int j=1; j<=C; j++)
-        {
-            cin >> tmp;
-            map[i][j] = tmp;
-            if(tmp == -1 && x_true == false)
-            {
-                up.x = i; up.y = j;
-                x_true = true;
-            }
-            else if(tmp == -1 && x_true == true)
-            {
-                down.x = i; down.y = j;
+void diffusion() {
+    for(int i=0; i<R; i++) {
+        for(int j=0; j<C; j++) {
+            if(map[i][j] != 0 && map[i][j] != -1) {
+                vector<int> tmp;
+                for(int k=0; k<4; k++) {
+                    if(i + dx[k] < 0 || i + dx[k] >= R) continue;
+                    if(j + dy[k] < 0 || j + dy[k] >= C) continue;
+                    if(map[i + dx[k]][j + dy[k]] == -1) continue;
+                    tmp.push_back(k);
+                }
+                int air = map[i][j] / 5;
+                map[i][j] -= air * tmp.size();
+                for(int k=0; k<tmp.size(); k++) {
+                    diff[i + dx[tmp[k]]][j + dy[tmp[k]]] += air;
+                }
+                while(!tmp.empty()) {
+                    tmp.pop_back();
+                }
             }
         }
     }
 
-    for(int i=0; i<T; i++)
-    {
-        m_move();
-        a_on();
+    for(int i=0; i<R; i++) {
+        for(int j=0; j<C; j++) {
+            map[i][j] += diff[i][j];
+            diff[i][j] = 0;
+        }
     }
-    int answer = 0;
-    for(int i=1; i<=R; i++)
-    {
-        for(int j=1; j<=C; j++) answer += map[i][j];
+}
+
+void work() {
+    int upX = airconditioner[0].first;
+    int upY = airconditioner[0].second + 1;
+    int downX = airconditioner[1].first;
+    int downY = airconditioner[1].second + 1;
+    int upAir = 0, downAir = 0, tmp;
+
+    while(upY < C) {
+        tmp = map[upX][upY];
+        map[upX][upY] = upAir;
+        upAir = tmp;
+        upY++;
+
+        tmp = map[downX][downY];
+        map[downX][downY] = downAir;
+        downAir = tmp;
+        downY++;
     }
-    cout << answer + 2 << endl;
+
+    upX--; upY--;
+    while(upX >= 0) {
+        tmp = map[upX][upY];
+        map[upX][upY] = upAir;
+        upAir = tmp;
+        upX--;
+    }
+
+    downX++; downY--;
+    while(downX < R) {
+        tmp = map[downX][downY];
+        map[downX][downY] = downAir;
+        downAir = tmp;
+        downX++;
+    }
+
+    upX++; upY--;
+    downX--; downY--;
+    while(upY >= 0) {
+        tmp = map[upX][upY];
+        map[upX][upY] = upAir;
+        upAir = tmp;
+        upY--;
+
+        tmp = map[downX][downY];
+        map[downX][downY] = downAir;
+        downAir = tmp;
+        downY--;
+    }
+
+    downY++; downX--;
+    while(map[downX][downY] != -1) {
+        tmp = map[downX][downY];
+        map[downX][downY] = downAir;
+        downAir = tmp;
+        downX--;
+    }
+
+    upY++; upX++;
+    while(map[upX][upY] != -1) {
+        tmp = map[upX][upY];
+        map[upX][upY] = upAir;
+        upAir = tmp;
+        upX++;
+    }
+
+}
+
+int check() {
+    int air = 0;
+    for(int i=0; i<R; i++) {
+        for(int j=0; j<C; j++) {
+            if(map[i][j] != -1) {
+                air += map[i][j];
+            }
+        }
+    }
+    return air;
+}
+
+int main() {
+    ios::sync_with_stdio(false); cin.tie(NULL);
+    cin >> R >> C >> T;
+
+    for(int i=0; i<R; i++) {
+        for(int j=0; j<C; j++) {
+            cin >> map[i][j];
+            if(map[i][j] == -1) {
+                airconditioner.push_back({ i, j });
+            }
+        }
+    }
+
+    for(int i=0; i<T; i++) {
+        diffusion();
+        work();
+    }
+
+    cout << check() << "\n";
+
+    return 0;
 }
