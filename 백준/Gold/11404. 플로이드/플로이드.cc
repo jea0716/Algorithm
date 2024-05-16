@@ -1,74 +1,62 @@
 #include <iostream>
 #include <queue>
 #include <vector>
+#include <algorithm>
+#include <string>
 
 using namespace std;
 
-#define INF 987654321
-
+const int INF = 1e9;
 int N, M;
+vector<vector<pair<int, int>>> graph(101);
 
-vector <pair<int,int> > V[101];
-int dist[101];
+void dijkstra(int n) {
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+    pq.push({ 0, n });
+    vector<int> dist(N + 1, INF);
+    dist[n] = 0;
 
-void dijkstra(int start)
-{
-    int cost, cur, ncost, next;
-    priority_queue <pair<int,int>, vector<pair<int,int> >, greater<pair<int, int> > > q;
-    q.push(make_pair(0, start));
-    dist[start] = 0;
+    while(!pq.empty()) {
+        int cur_dist = pq.top().first;
+        int cur_node = pq.top().second;
+        pq.pop();
 
-    while(!q.empty())
-    {
-        cost = -q.top().first;
-        cur = q.top().second;
-        q.pop();
+        if(dist[cur_node] < cur_dist) continue;
 
-        if(dist[cur] < cost) continue;
+        for(auto &edge: graph[cur_node]) {
+            int next_node = edge.first;
+            int next_dist = edge.second + cur_dist;
 
-        for(int i=0; i<V[cur].size(); i++)
-        {
-            ncost = V[cur][i].first;
-            next = V[cur][i].second;
-
-            if(dist[next] > ncost + cost)
-            {
-                dist[next] = ncost + cost;
-                q.push(make_pair(-dist[next], next));
+            if(dist[next_node] > next_dist) {
+                pq.push({ next_dist, next_node });
+                dist[next_node] = next_dist; 
             }
         }
     }
+
+    for(int i=1; i<dist.size(); i++){
+        if(dist[i] != INF) cout << dist[i] << " ";
+        else cout << "0 ";
+    }
+    cout << "\n";
+
+    return ;
 }
 
-int main()
-{
-    ios::sync_with_stdio(false);
-    cin.tie(0);
+int main() {
+    ios::sync_with_stdio(false); cin.tie(NULL);
 
     cin >> N >> M;
 
-    int start, end, cost;
-    for(int i=0; i<M; i++)
-    {
-        cin >> start >> end >> cost;
-        V[start-1].push_back(make_pair(cost, end-1));
+    int to, from, weight;
+    for(int i=0; i<M; i++) {
+        cin >> to >> from >> weight;
+        graph[to].push_back({ from, weight });
     }
 
-    for(int i=0; i<N; i++)
-    {
-        for(int j=0; j<N; j++)
-        {
-            dist[j] = INF;
-        }
-
+    for(int i=1; i<=N; i++) {
         dijkstra(i);
-
-        for(int j=0; j<N; j++)
-        {
-            if(dist[j] == INF) cout << 0 << " ";
-            else cout << dist[j] << " ";
-        }
-        cout << "\n";
     }
+
     return 0;
 }
