@@ -6,7 +6,7 @@
 
 using namespace std;
 
-#define INF 9223372036854775800
+#define INF 21000000000000
 
 int N, M, K;
 vector<vector<pair<int, int>>> graph(10001);
