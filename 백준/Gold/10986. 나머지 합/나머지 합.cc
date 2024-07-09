@@ -10,6 +10,7 @@ long long answer, sum;
 vector<long long> v(1001, 0);
 
 int main() {
+    ios::sync_with_stdio(false); cin.tie(NULL);
     cin >> N >> M;
 
     for(int i=1; i<=N; i++) {
