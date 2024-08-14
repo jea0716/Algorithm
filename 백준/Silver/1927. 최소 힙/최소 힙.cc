@@ -1,31 +1,32 @@
 #include <iostream>
 #include <queue>
+#include <vector>
+#include <cmath>
+#include <algorithm>
 
 using namespace std;
 
-int main()
-{
-    ios::sync_with_stdio(false);
-    cin.tie(NULL);
-    int n; cin >> n;
-    int tmp;
-    priority_queue <int, vector<int>, greater<int> > pq;
-    for(int i=0; i<n; i++)
-    {
+int N, tmp;
+priority_queue<int, vector<int>, greater<int>> q;
+
+int main() {
+    ios::sync_with_stdio(false); cin.tie(NULL);
+
+    cin >> N;
+
+    while(N--) {
         cin >> tmp;
-        if(tmp == 0)
-        {
-            if(pq.size() == 0) cout << 0 << '\n';
-            else
-            {
-                cout << pq.top() << '\n';
-                pq.pop();
+        if(tmp == 0) {
+            if(q.empty()) cout << "0\n";
+            else {
+                cout << q.top() << '\n';
+                q.pop();
             }
         }
-        else
-        {
-            pq.push(tmp);
+        else {
+            q.push(tmp);
         }
     }
+
     return 0;
 }
