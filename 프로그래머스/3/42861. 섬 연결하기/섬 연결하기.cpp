@@ -6,13 +6,13 @@ using namespace std;
 
 int set[101];
 
+bool cmp(vector<int> a, vector<int> b) {
+    return a[2] < b[2];
+}
+
 int getParent(int n) {
     if(set[n] == n) return n;
     return set[n] = getParent(set[n]);
-}
-
-bool cmp(vector<int> a, vector<int> b) {
-    return a[2] < b[2];
 }
 
 int solution(int n, vector<vector<int>> costs) {
