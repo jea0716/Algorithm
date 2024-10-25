@@ -1,52 +1,44 @@
 #include <iostream>
-#include <vector>
 #include <queue>
+#include <vector>
+#include <cmath>
+#include <algorithm>
 
 using namespace std;
 
-#define MAX 100001
-int N, ans[MAX];
-bool visit[MAX];
-vector <int> graph[MAX];
+int N, a, b;
+vector<int> v[100001];
+vector<bool> visited(100001, false);
+vector<int> answer(100001, 0);
 
-void bfs()
-{
-    queue <int> q;
-    visit[1] = true;
-    q.push(1);
+void DFS(int n) {
+    visited[n] = true;
 
-    while(!q.empty())
-    {
-        int parent = q.front();
-        q.pop();
-        for(int i=0; i<graph[parent].size(); i++)
-        {
-            int child = graph[parent][i];
-            if(!visit[child])
-            {
-                ans[child] = parent;
-                visit[child] = true;
-                q.push(child);
-            }
+    for(int i=0; i<v[n].size(); i++) {
+        if(!visited[v[n][i]]) {
+            answer[v[n][i]] = n;
+            DFS(v[n][i]);
         }
     }
+
+    return ;
 }
 
-int main()
-{
+int main() {
+    ios::sync_with_stdio(false); cin.tie(NULL);
+
     cin >> N;
-    for(int i=1; i<N; i++)
-    {
-        int x, y;
-        cin >> x >> y;
-        graph[x].push_back(y);
-        graph[y].push_back(x);
+
+    for(int i=0; i<N-1; i++) {
+        cin >> a >> b;
+        v[a].push_back(b);
+        v[b].push_back(a);
     }
 
-    bfs();
+    DFS(1);
 
-    for(int i=2; i<=N; i++)
-    {
-        cout << ans[i] << "\n";
-    }
+    for(int i=2; i<=N; i++) cout << answer[i] << ' ';
+    cout << '\n';
+
+    return 0;
 }
