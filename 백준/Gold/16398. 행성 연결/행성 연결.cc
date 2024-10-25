@@ -20,7 +20,6 @@ int main() {
     ios::sync_with_stdio(false); cin.tie(NULL);
 
     cin >> N;
-    v.reserve(N * N + 1);
 
     for(int i=1; i<=N; i++) set[i] = i;
 
