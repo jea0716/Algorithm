@@ -1,10 +1,10 @@
 # [level 0] 두 수의 곱 - 120804 
 
-[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/120804) 
+[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/120804?language=swift) 
 
 ### 성능 요약
 
-메모리: 3.63 MB, 시간: 0.01 ms
+메모리: 16.3 MB, 시간: 0.01 ms
 
 ### 구분
 
@@ -16,7 +16,7 @@
 
 ### 제출 일자
 
-2024년 02월 25일 11:27:19
+2025년 01월 26일 15:58:17
 
 ### 문제 설명
 
